@@ -10,7 +10,123 @@ servers:
 paths:
   /health:
     get:
-      summary: "Health check"
+      summary: default route
+      tags:
+        - app
+      operationId: app.routes.health
       responses:
         200:
-          description: "OK"
+          description: Welcome to the Trail REST API
+
+  /counties:
+    get:
+      summary: Get all counties
+      tags:
+        - counties
+      operationId: app.services.get_all_counties
+      responses:
+        200:
+          description: A list of counties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/County"
+    post:
+      summary: Create a new county
+      tags:
+        - counties
+      operationId: app.services.create_county
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - county_name
+              properties:
+                county_name:
+                  type: string
+      responses:
+        201:
+          description: County created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/County"
+  /counties/{county_id}:
+    get:
+      summary: Get a county by ID
+      tags:
+        - counties
+      operationId: app.services.get_county_by_id
+      parameters:
+        - name: county_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: County details
+        404:
+          description: County not found
+    put:
+      summary: Update a county
+      tags:
+        - counties
+      operationId: app.services.update_county
+      parameters:
+        - name: county_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - county_name
+              properties:
+                county_name:
+                  type: string
+      responses:
+        200:
+          description: County updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/County"
+    delete:
+      summary: Delete a county
+      tags:
+        - counties
+      operationId: app.services.delete_county
+      parameters:
+        - name: county_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: County deleted
+        404:
+          description: County not found
+
+components:
+  schemas:
+    County:
+      type: object
+      properties:
+        county_id:
+          type: integer
+        county_name:
+          type: string
+      required:
+        - county_name

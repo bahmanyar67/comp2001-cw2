@@ -48,7 +48,18 @@ def create_schema(name):
 
 # 2. Create Tables
 def create_tables():
-    print("Creating tables...")
+    county_table_sql = ("""
+            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'counties' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+            BEGIN
+                CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[counties] (
+                    county_id TINYINT PRIMARY KEY IDENTITY(1,1),
+                    county_name NVARCHAR(100) NOT NULL
+                );
+            END
+        """)
+    execute_query(county_table_sql)
+
+    print("Tables created successfully")
 
 
 # 3. Create Views
@@ -65,6 +76,7 @@ def create_stored_procedures():
 def initialize_database():
     print("Initializing the database...")
     create_schema(os.getenv("DATABASE_SCHEMA_NAME"))
+    create_tables()
     print("Database initialization complete.")
 
 
