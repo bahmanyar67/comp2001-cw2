@@ -1,15 +1,25 @@
-from flask import render_template
 from connexion import FlaskApp
+from app.extensions import db, ma
+from dotenv import load_dotenv
 
 
 def create_app():
+    load_dotenv()
+
     app = FlaskApp(__name__, specification_dir="./")
 
-    # Load Swagger
+    # Load Swagger API
     app.add_api("swagger.yml", arguments={"title": "Trail REST API"})
 
-    @app.route("/")
-    def home():
-        return render_template("index.html")
+    # Access the Flask app instance
+    flask_app = app.app
+
+    # Configure the app
+    flask_app.config.from_object("app.config.Config")
+
+
+    # Initialize SQLAlchemy and Marshmallow
+    db.init_app(flask_app)
+    ma.init_app(flask_app)
 
     return app
