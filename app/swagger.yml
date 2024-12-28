@@ -221,6 +221,110 @@ paths:
         404:
           description: Location not found
 
+  /surface_types:
+    get:
+      summary: Get all surface types
+      tags:
+        - SurfaceTypes
+      operationId: app.services.get_all_surface_types
+      responses:
+        200:
+          description: A list of surface types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SurfaceType"
+    post:
+      summary: Create a new surface type
+      tags:
+        - SurfaceTypes
+      operationId: app.services.create_surface_type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - surface_type_name
+              properties:
+                surface_type_name:
+                  type: string
+      responses:
+        201:
+          description: Surface type created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurfaceType"
+
+  /surface_types/{surface_type_id}:
+    get:
+      summary: Get a surface type by ID
+      tags:
+        - SurfaceTypes
+      operationId: app.services.get_surface_type_by_id
+      parameters:
+        - name: surface_type_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Surface type details
+        404:
+          description: Surface type not found
+    put:
+      summary: Update a surface type
+      tags:
+        - SurfaceTypes
+      operationId: app.services.update_surface_type
+      parameters:
+        - name: surface_type_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - surface_type_name
+              properties:
+                surface_type_name:
+                  type: string
+      responses:
+        200:
+          description: Surface type updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurfaceType"
+    delete:
+      summary: Delete a surface type
+      tags:
+        - SurfaceTypes
+      operationId: app.services.delete_surface_type
+      parameters:
+        - name: surface_type_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Surface type deleted
+        404:
+          description: Surface type not found
+
+
+
 components:
   schemas:
     County:
@@ -242,3 +346,13 @@ components:
           type: string
       required:
         - location_name
+
+    SurfaceType:
+      type: object
+      properties:
+        surface_type_id:
+          type: integer
+        surface_type_name:
+          type: string
+      required:
+        - surface_type_name

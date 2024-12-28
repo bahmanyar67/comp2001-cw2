@@ -49,8 +49,7 @@ def create_schema(name):
 # 2. Create Tables
 def create_tables():
     county_table_sql = ("""
-            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'counties' AND schema_id = SCHEMA_ID('""" + os.getenv(
-        "DATABASE_SCHEMA_NAME") + """'))
+            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'counties' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
             BEGIN
                 CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[counties] (
                     county_id TINYINT PRIMARY KEY IDENTITY(1,1),
@@ -60,8 +59,7 @@ def create_tables():
         """)
 
     location_table_sql = ("""
-            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'locations' AND schema_id = SCHEMA_ID('""" + os.getenv(
-        "DATABASE_SCHEMA_NAME") + """'))
+            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'locations' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
             BEGIN
                 CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[locations] (
                     location_id SMALLINT PRIMARY KEY IDENTITY(1,1),
@@ -70,8 +68,19 @@ def create_tables():
             END
         """)
 
+    surface_type_table_sql = ("""
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'surface_types' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    BEGIN
+        CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[surface_types] (
+            surface_type_id TINYINT PRIMARY KEY IDENTITY(1,1),
+            surface_type_name NVARCHAR(100) NOT NULL
+        );
+    END
+    """)
+
     execute_query(county_table_sql)
     execute_query(location_table_sql)
+    execute_query(surface_type_table_sql)
 
     print("Tables created successfully")
 
