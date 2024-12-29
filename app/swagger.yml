@@ -425,6 +425,106 @@ paths:
         404:
           description: Route type not found
 
+  /tags:
+    get:
+      summary: Get all tags
+      tags:
+        - Tags
+      operationId: app.services.get_all_tags
+      responses:
+        200:
+          description: A list of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+    post:
+      summary: Create a new tag
+      tags:
+        - Tags
+      operationId: app.services.create_tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tag_name
+              properties:
+                tag_name:
+                  type: string
+      responses:
+        201:
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+  /tags/{tag_id}:
+    get:
+      summary: Get a tag by ID
+      tags:
+        - Tags
+      operationId: app.services.get_tag_by_id
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Tag details
+        404:
+          description: Tag not found
+    put:
+      summary: Update a tag
+      tags:
+        - Tags
+      operationId: app.services.update_tag
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tag_name
+              properties:
+                tag_name:
+                  type: string
+      responses:
+        200:
+          description: Tag updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+    delete:
+      summary: Delete a tag
+      tags:
+        - Tags
+      operationId: app.services.delete_tag
+      parameters:
+        - name: tag_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Tag deleted
+        404:
+          description: Tag not found
 
 components:
   schemas:
@@ -467,3 +567,14 @@ components:
           type: string
       required:
         - route_type_name
+
+
+    Tag:
+      type: object
+      properties:
+        tag_id:
+          type: integer
+        tag_name:
+          type: string
+      required:
+        - tag_name

@@ -88,10 +88,21 @@ def create_tables():
     END
     """)
 
+    tag_table_sql = ("""
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'tags' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    BEGIN
+        CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[tags] (
+            tag_id INT PRIMARY KEY IDENTITY(1,1),
+            tag_name NVARCHAR(100) NOT NULL
+        );
+    END
+    """)
+
     execute_query(county_table_sql)
     execute_query(location_table_sql)
     execute_query(surface_type_table_sql)
     execute_query(route_types_table_sql)
+    execute_query(tag_table_sql)
 
     print("Tables created successfully")
 
