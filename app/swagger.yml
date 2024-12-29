@@ -207,7 +207,7 @@ paths:
     delete:
       summary: Delete a location
       tags:
-        - Counties
+        - Locations
       operationId: app.services.delete_location
       parameters:
         - name: location_id

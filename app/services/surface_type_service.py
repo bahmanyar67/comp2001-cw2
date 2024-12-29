@@ -27,7 +27,7 @@ def create_surface_type(body):
 def update_surface_type(surface_type_id, body):
     surface_type = SurfaceType.query.get(surface_type_id)
     if surface_type:
-        SurfaceType.surface_type_name = body['surface_type_name']
+        surface_type.surface_type_name = body['surface_type_name']
         db.session.commit()
         return surface_type_schema.dump(surface_type)
     return None
