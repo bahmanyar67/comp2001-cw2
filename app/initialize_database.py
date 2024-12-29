@@ -98,11 +98,23 @@ def create_tables():
     END
     """)
 
+    user_table_sql = ("""
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'users' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    BEGIN
+        CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users] (
+            user_id INT PRIMARY KEY IDENTITY(1,1),
+            user_email NVARCHAR(255) NOT NULL,
+            user_role NVARCHAR(50) NOT NULL
+        );
+    END
+    """)
+
     execute_query(county_table_sql)
     execute_query(location_table_sql)
     execute_query(surface_type_table_sql)
     execute_query(route_types_table_sql)
     execute_query(tag_table_sql)
+    execute_query(user_table_sql)
 
     print("Tables created successfully")
 
