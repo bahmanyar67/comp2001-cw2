@@ -633,6 +633,197 @@ paths:
         404:
           description: User not found
 
+  /trails:
+    get:
+      summary: Get all trails
+      tags:
+        - Trails
+      operationId: app.services.get_all_trails
+      responses:
+        200:
+          description: A list of trails
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trail"
+    post:
+      summary: Create a new trail
+      tags:
+        - Trails
+      operationId: app.services.create_trail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - trail_name
+                - trail_summary
+                - trail_owner_id
+                - trail_route_type_id
+                - trail_surface_type_id
+                - trail_location_id
+                - trail_county_id
+                - trail_starting_point_lat
+                - trail_starting_point_long
+                - trail_ending_point_lat
+                - trail_ending_point_long
+              properties:
+                trail_name:
+                  type: string
+                trail_summary:
+                  type: string
+                trail_description:
+                  type: string
+                trail_owner_id:
+                  type: integer
+                trail_route_type_id:
+                  type: integer
+                trail_surface_type_id:
+                  type: integer
+                trail_location_id:
+                  type: integer
+                trail_street:
+                  type: string
+                trail_postal_code:
+                  type: string
+                trail_county_id:
+                  type: integer
+                trail_length:
+                  type: number
+                trail_length_unit:
+                  type: string
+                trail_elevation_gain:
+                  type: number
+                trail_elevation_gain_unit:
+                  type: string
+                trail_starting_point_lat:
+                  type: number
+                trail_starting_point_long:
+                  type: number
+                trail_ending_point_lat:
+                  type: number
+                trail_ending_point_long:
+                  type: number
+                trail_difficulty:
+                  type: string
+      responses:
+        201:
+          description: Trail created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trail"
+  /trails/{trail_id}:
+    get:
+      summary: Get a trail by ID
+      tags:
+        - Trails
+      operationId: app.services.get_trail_by_id
+      parameters:
+        - name: trail_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Trail details
+        404:
+          description: Trail not found
+    put:
+      summary: Update a trail
+      tags:
+        - Trails
+      operationId: app.services.update_trail
+      parameters:
+        - name: trail_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - trail_name
+                - trail_summary
+                - trail_owner_id
+                - trail_route_type_id
+                - trail_surface_type_id
+                - trail_location_id
+                - trail_county_id
+                - trail_starting_point_lat
+                - trail_starting_point_long
+                - trail_ending_point_lat
+                - trail_ending_point_long
+              properties:
+                trail_name:
+                  type: string
+                trail_summary:
+                  type: string
+                trail_description:
+                  type: string
+                trail_owner_id:
+                  type: integer
+                trail_route_type_id:
+                  type: integer
+                trail_surface_type_id:
+                  type: integer
+                trail_location_id:
+                  type: integer
+                trail_street:
+                  type: string
+                trail_postal_code:
+                  type: string
+                trail_county_id:
+                  type: integer
+                trail_length:
+                  type: number
+                trail_length_unit:
+                  type: string
+                trail_elevation_gain:
+                  type: number
+                trail_elevation_gain_unit:
+                  type: string
+                trail_starting_point_lat:
+                  type: number
+                trail_starting_point_long:
+                  type: number
+                trail_ending_point_lat:
+                  type: number
+                trail_ending_point_long:
+                  type: number
+                trail_difficulty:
+                  type: string
+      responses:
+        200:
+          description: Trail updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trail"
+    delete:
+      summary: Delete a trail
+      tags:
+        - Trails
+      operationId: app.services.delete_trail
+      parameters:
+        - name: trail_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Trail deleted
+
 
 components:
   schemas:
@@ -698,3 +889,59 @@ components:
       required:
         - user_email
         - user_role
+
+    Trail:
+      type: object
+      properties:
+        trail_id:
+          type: integer
+        trail_name:
+          type: string
+        trail_summary:
+          type: string
+        trail_description:
+          type: string
+        trail_owner_id:
+          type: integer
+        trail_route_type_id:
+          type: integer
+        trail_surface_type_id:
+          type: integer
+        trail_location_id:
+          type: integer
+        trail_street:
+          type: string
+        trail_postal_code:
+          type: string
+        trail_county_id:
+          type: integer
+        trail_length:
+          type: number
+        trail_length_unit:
+          type: string
+        trail_elevation_gain:
+          type: number
+        trail_elevation_gain_unit:
+          type: string
+        trail_starting_point_lat:
+          type: number
+        trail_starting_point_long:
+          type: number
+        trail_ending_point_lat:
+          type: number
+        trail_ending_point_long:
+          type: number
+        trail_difficulty:
+          type: string
+      required:
+        - trail_name
+        - trail_summary
+        - trail_owner_id
+        - trail_route_type_id
+        - trail_surface_type_id
+        - trail_location_id
+        - trail_county_id
+        - trail_starting_point_lat
+        - trail_starting_point_long
+        - trail_ending_point_lat
+        - trail_ending_point_long

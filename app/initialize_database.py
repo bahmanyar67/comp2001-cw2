@@ -103,8 +103,44 @@ def create_tables():
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users] (
             user_id INT PRIMARY KEY IDENTITY(1,1),
-            user_email NVARCHAR(255) NOT NULL,
+            user_email NVARCHAR(255) NOT NULL UNIQUE,
             user_role NVARCHAR(50) NOT NULL
+        );
+    END
+    """)
+
+    trail_table_sql = ("""
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'trails' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    BEGIN
+        CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails] (
+            trail_id INT PRIMARY KEY IDENTITY(1,1),
+            trail_name NVARCHAR(100) NOT NULL,
+            trail_summary NVARCHAR(MAX) NOT NULL,
+            trail_description NVARCHAR(MAX),
+            trail_owner_id INT NOT NULL,
+            trail_route_type_id TINYINT NOT NULL,
+            trail_surface_type_id TINYINT NOT NULL,
+            trail_location_id SMALLINT NOT NULL,
+            trail_street NVARCHAR(255),
+            trail_postal_code NVARCHAR(20),
+            trail_county_id TINYINT,
+            trail_city NVARCHAR(100),
+            trail_length DECIMAL(5,2) NOT NULL,
+            trail_length_unit NVARCHAR(20),
+            trail_elevation_gain DECIMAL(5,2),
+            trail_elevation_gain_unit NVARCHAR(20),
+            trail_starting_point_lat DECIMAL(9,6),
+            trail_starting_point_long DECIMAL(9,6),
+            trail_ending_point_lat DECIMAL(9,6),
+            trail_ending_point_long DECIMAL(9,6),
+            trail_difficulty NVARCHAR(50),
+            trail_created_at DATETIME DEFAULT GETDATE(),
+            trail_updated_at DATETIME DEFAULT GETDATE(),
+            FOREIGN KEY (trail_owner_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users](user_id),
+            FOREIGN KEY (trail_route_type_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[route_types](route_type_id),
+            FOREIGN KEY (trail_surface_type_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[surface_types](surface_type_id),
+            FOREIGN KEY (trail_location_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[locations](location_id),
+            FOREIGN KEY (trail_county_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[counties](county_id)
         );
     END
     """)
@@ -115,6 +151,7 @@ def create_tables():
     execute_query(route_types_table_sql)
     execute_query(tag_table_sql)
     execute_query(user_table_sql)
+    execute_query(trail_table_sql)
 
     print("Tables created successfully")
 

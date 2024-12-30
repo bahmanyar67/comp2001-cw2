@@ -4,3 +4,4 @@ from .surface_type import SurfaceType, SurfaceTypeSchema
 from .route_type import RouteType, RouteTypeSchema
 from .tag import Tag, TagSchema
 from .user import User, UserSchema
+from .trail import Trail, TrailSchema

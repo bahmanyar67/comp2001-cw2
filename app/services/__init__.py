@@ -4,3 +4,4 @@ from .surface_type_service import get_all_surface_types, get_surface_type_by_id,
 from .route_type_service import get_all_route_types, get_route_type_by_id, create_route_type, update_route_type, delete_route_type
 from .tag_service import get_all_tags, get_tag_by_id, create_tag, update_tag, delete_tag
 from .user_service import get_all_users, get_user_by_id, create_user, update_user, delete_user
+from .trail_service import get_all_trails, get_trail_by_id, create_trail, update_trail, delete_trail
