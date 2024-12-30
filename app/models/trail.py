@@ -2,11 +2,15 @@ from app.extensions import db, ma
 from sqlalchemy import event
 import datetime
 import os
+import app.models
 
 
 class Trail(db.Model):
     __tablename__ = 'trails'
-    __table_args__ = {'schema': os.getenv("DATABASE_SCHEMA_NAME")}  # Define the schema for the table
+    __table_args__ = {
+        'schema': os.getenv("DATABASE_SCHEMA_NAME"),
+        'extend_existing': True  # Prevent redefinition errors
+    }
 
     trail_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     trail_name = db.Column(db.String(100), nullable=False)
@@ -32,6 +36,14 @@ class Trail(db.Model):
     trail_created_at = db.Column(db.DateTime, server_default=db.func.now())
     trail_updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=datetime.datetime.now())
 
+    # Relationships
+    owner = db.relationship('User', backref='trails', single_parent=True)
+    route_type = db.relationship('RouteType', backref='trails', single_parent=True)
+    surface_type = db.relationship('SurfaceType', backref='trails', single_parent=True)
+    location = db.relationship('Location', backref='trails', single_parent=True)
+    county = db.relationship('County', backref='trails', single_parent=True)
+    # tags = db.relationship('Tag', secondary='trail_tag', backref='trails')
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -46,3 +58,12 @@ class TrailSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Trail
         load_instance = True  # To deserialize into model instance
+        sqla_session = db.session
+        include_relationships = True
+        include_fk = True
+
+    owner = ma.Nested('UserSchema', only=('user_id', 'user_email', 'user_role'))
+    route_type = ma.Nested('RouteTypeSchema', only=('route_type_id', 'route_type_name'))
+    surface_type = ma.Nested('SurfaceTypeSchema', only=('surface_type_id', 'surface_type_name'))
+    location = ma.Nested('LocationSchema', only=('location_id', 'location_name'))
+    county = ma.Nested('CountySchema', only=('county_id', 'county_name'))

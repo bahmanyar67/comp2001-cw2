@@ -19,3 +19,5 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True  # To deserialize into model instance
+        sqla_session = db.session
+        include_relationships = True
