@@ -1,6 +1,7 @@
 import os
 import urllib.parse
 
+
 class Config:
     SQLALCHEMY_DATABASE_URI = (
         "mssql+pyodbc:///?odbc_connect="
@@ -14,6 +15,3 @@ class Config:
         "Connection Timeout=30;"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-
-print(Config.SQLALCHEMY_DATABASE_URI)

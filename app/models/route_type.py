@@ -6,8 +6,8 @@ class RouteType(db.Model):
     __tablename__ = 'route_types'
     __table_args__ = {'schema': os.getenv("DATABASE_SCHEMA_NAME")}  # Define the schema for the table
 
-    route_type_id = db.Column(db.Integer, primary_key=True)
-    route_type_name = db.Column(db.String(255), nullable=False)
+    route_type_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    route_type_name = db.Column(db.String(100), nullable=False)
 
     def __init__(self, route_type_name):
         self.route_type_name = route_type_name
