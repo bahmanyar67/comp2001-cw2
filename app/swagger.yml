@@ -710,6 +710,10 @@ paths:
                   type: number
                 trail_difficulty:
                   type: string
+                tag_ids:
+                  type: array
+                  items:
+                    type: integer
       responses:
         201:
           description: Trail created
@@ -933,6 +937,10 @@ components:
           type: number
         trail_difficulty:
           type: string
+        tag_ids:
+          type: array
+          items:
+            type: integer
       required:
         - trail_name
         - trail_summary

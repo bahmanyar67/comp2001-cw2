@@ -2,8 +2,13 @@ from app.extensions import db, ma
 from sqlalchemy import event
 import datetime
 import os
-import app.models
 
+
+trail_tag = db.Table('trail_tag', db.Model.metadata,
+                     db.Column('trail_id', db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.trails.trail_id"), primary_key=True),
+                     db.Column('tag_id', db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.tags.tag_id"), primary_key=True),
+                     schema=os.getenv("DATABASE_SCHEMA_NAME")
+                     )
 
 class Trail(db.Model):
     __tablename__ = 'trails'
@@ -42,7 +47,7 @@ class Trail(db.Model):
     surface_type = db.relationship('SurfaceType', backref='trails', single_parent=True)
     location = db.relationship('Location', backref='trails', single_parent=True)
     county = db.relationship('County', backref='trails', single_parent=True)
-    # tags = db.relationship('Tag', secondary='trail_tag', backref='trails')
+    tags = db.relationship('Tag', secondary=trail_tag, backref='trails')
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -67,3 +72,4 @@ class TrailSchema(ma.SQLAlchemyAutoSchema):
     surface_type = ma.Nested('SurfaceTypeSchema', only=('surface_type_id', 'surface_type_name'))
     location = ma.Nested('LocationSchema', only=('location_id', 'location_name'))
     county = ma.Nested('CountySchema', only=('county_id', 'county_name'))
+    tags = ma.Nested('TagSchema', many=True, only=('tag_id', 'tag_name'))

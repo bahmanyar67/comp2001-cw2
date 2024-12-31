@@ -145,6 +145,19 @@ def create_tables():
     END
     """)
 
+    trail_tag_table_sql = ("""
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'trail_tag' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    BEGIN
+        CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trail_tag] (
+            trail_id INT NOT NULL,
+            tag_id INT NOT NULL,
+            PRIMARY KEY (trail_id, tag_id),
+            FOREIGN KEY (trail_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails](trail_id),
+            FOREIGN KEY (tag_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[tags](tag_id)
+        );
+    END
+    """)
+
     execute_query(county_table_sql)
     execute_query(location_table_sql)
     execute_query(surface_type_table_sql)
@@ -152,6 +165,7 @@ def create_tables():
     execute_query(tag_table_sql)
     execute_query(user_table_sql)
     execute_query(trail_table_sql)
+    execute_query(trail_tag_table_sql)
 
     print("Tables created successfully")
 

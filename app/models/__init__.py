@@ -1,4 +1,3 @@
-from app.models.base import trail_tag
 from app.models.county import County, CountySchema
 from app.models.location import Location, LocationSchema
 from app.models.surface_type import SurfaceType, SurfaceTypeSchema

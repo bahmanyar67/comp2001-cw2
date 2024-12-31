@@ -1,4 +1,4 @@
-from app.models import Trail, TrailSchema
+from app.models import Trail, TrailSchema, Tag
 from app.extensions import db
 
 trail_schema = TrailSchema()
@@ -37,8 +37,10 @@ def create_trail(body):
         trail_starting_point_long=body.get('trail_starting_point_long'),
         trail_ending_point_lat=body.get('trail_ending_point_lat'),
         trail_ending_point_long=body.get('trail_ending_point_long'),
-        trail_difficulty=body.get('trail_difficulty')
+        trail_difficulty=body.get('trail_difficulty'),
+        tags=Tag.query.filter(Tag.tag_id.in_(body.get('tag_ids', []))).all()
     )
+
     db.session.add(new_trail)
     db.session.commit()
     return trail_schema.dump(new_trail)
@@ -66,6 +68,8 @@ def update_trail(trail_id, body):
         trail.trail_ending_point_lat = body.get('trail_ending_point_lat', trail.trail_ending_point_lat)
         trail.trail_ending_point_long = body.get('trail_ending_point_long', trail.trail_ending_point_long)
         trail.trail_difficulty = body.get('trail_difficulty', trail.trail_difficulty)
+        trail.tags = Tag.query.filter(Tag.tag_id.in_(body.get('tag_ids', []))).all()
+
         db.session.commit()
         return trail_schema.dump(trail)
     return None
