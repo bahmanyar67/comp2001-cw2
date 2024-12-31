@@ -40,3 +40,10 @@ DATABASE_SCHEMA_NAME=
 python app.py
 ```
 
+### Using Docker
+
+1. pull the image from Docker Hub:
+
+```bash
+docker pull mohamedelkadi/trail-rest-api
+```
