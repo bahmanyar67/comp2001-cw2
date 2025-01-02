@@ -26,8 +26,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . /app/
 
+# Make the entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
 # Expose the port your app runs on
 EXPOSE 8000
 
-# Command to run the Flask app
+# Set ENTRYPOINT
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command
 CMD ["python", "run.py"]
