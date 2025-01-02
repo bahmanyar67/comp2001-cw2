@@ -181,11 +181,100 @@ def create_stored_procedures():
     print("Creating stored procedures...")
 
 
+# 5. Create default Data
+def create_default_data():
+    # users
+    user_data = [
+        ("Grace Hopper ", "grace@plymouth.ac.uk", "admin"),
+        ("Tim Berners-Lee", "tim@plymouth.ac.uk", "user"),
+        ("Ada Lovelace", "ada@plymouth.ac.uk", "user")
+    ]
+
+    for user in user_data:
+        user_insert_sql = ("""
+            IF NOT EXISTS (SELECT * FROM [""" + os.getenv(
+            "DATABASE_SCHEMA_NAME") + """].[users] WHERE user_email = '""" + user[1] + """')
+            BEGIN
+                INSERT INTO [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users] (user_name, user_email, user_role)
+                VALUES ('""" + user[0] + """', '""" + user[1] + """', '""" + user[2] + """')
+            END
+            """)
+        execute_query(user_insert_sql)
+
+    # UK counties
+    counties_data = ["Avon", "Bedfordshire", "Berkshire", "Borders", "Buckinghamshire", "Cambridgeshire", "Devon"]
+    for county in counties_data:
+        county_insert_sql = ("""
+            IF NOT EXISTS (SELECT * FROM [""" + os.getenv(
+            "DATABASE_SCHEMA_NAME") + """].[counties] WHERE county_name = '""" + county + """')
+            BEGIN
+                INSERT INTO [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[counties] (county_name)
+                VALUES ('""" + county + """')
+            END
+            """)
+        execute_query(county_insert_sql)
+
+    # Locations
+    locations_data = ["Dartmoor", "Exmoor", "Lake District", "Peak District", "Snowdonia", "Yorkshire Dales"]
+    for location in locations_data:
+        location_insert_sql = ("""
+            IF NOT EXISTS (SELECT * FROM [""" + os.getenv(
+            "DATABASE_SCHEMA_NAME") + """].[locations] WHERE location_name = '""" + location + """')
+            BEGIN
+                INSERT INTO [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[locations] (location_name)
+                VALUES ('""" + location + """')
+            END
+            """)
+        execute_query(location_insert_sql)
+
+    # Surface types
+    surface_types_data = ["Asphalt", "Concrete", "Gravel", "Sand", "Dirt", "Rock"]
+    for surface_type in surface_types_data:
+        surface_type_insert_sql = ("""
+            IF NOT EXISTS (SELECT * FROM [""" + os.getenv(
+            "DATABASE_SCHEMA_NAME") + """].[surface_types] WHERE surface_type_name = '""" + surface_type + """')
+            BEGIN
+                INSERT INTO [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[surface_types] (surface_type_name)
+                VALUES ('""" + surface_type + """')
+            END
+            """)
+        execute_query(surface_type_insert_sql)
+
+    # Route types
+    route_types_data = ["Loop", "Out and back", "Point to point"]
+    for route_type in route_types_data:
+        route_type_insert_sql = ("""
+            IF NOT EXISTS (SELECT * FROM [""" + os.getenv(
+            "DATABASE_SCHEMA_NAME") + """].[route_types] WHERE route_type_name = '""" + route_type + """')
+            BEGIN
+                INSERT INTO [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[route_types] (route_type_name)
+                VALUES ('""" + route_type + """')
+            END
+            """)
+        execute_query(route_type_insert_sql)
+
+    # Tags
+    tags_data = ["Family friendly", "Dog friendly", "Wheelchair friendly", "Stroller friendly", "Bike friendly"]
+    for tag in tags_data:
+        tag_insert_sql = ("""
+            IF NOT EXISTS (SELECT * FROM [""" + os.getenv(
+            "DATABASE_SCHEMA_NAME") + """].[tags] WHERE tag_name = '""" + tag + """')
+            BEGIN
+                INSERT INTO [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[tags] (tag_name)
+                VALUES ('""" + tag + """')
+            END
+            """)
+        execute_query(tag_insert_sql)
+
+
 # Initialize the database
 def initialize_database():
     print("Initializing the database...")
     create_schema(os.getenv("DATABASE_SCHEMA_NAME"))
     create_tables()
+    create_views()
+    create_stored_procedures()
+    create_default_data()
     print("Database initialization complete.")
 
 
