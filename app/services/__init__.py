@@ -5,3 +5,8 @@ from .route_type_service import get_all_route_types, get_route_type_by_id, creat
 from .tag_service import get_all_tags, get_tag_by_id, create_tag, update_tag, delete_tag
 from .user_service import get_all_users, get_user_by_id, create_user, update_user, delete_user
 from .trail_service import get_all_trails, get_trail_by_id, create_trail, update_trail, delete_trail
+from .auth_service import basic_auth, basic_auth_wrapper
+
+
+def health():
+    return {"message": "The server is working!"}, 200

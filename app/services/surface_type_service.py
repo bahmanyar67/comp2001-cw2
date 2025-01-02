@@ -1,5 +1,6 @@
 from app.models import SurfaceType, SurfaceTypeSchema
 from app.extensions import db
+from flask import abort
 
 surface_type_schema = SurfaceTypeSchema()
 surface_types_schema = SurfaceTypeSchema(many=True)
@@ -17,14 +18,20 @@ def get_surface_type_by_id(surface_type_id):
     return None
 
 
-def create_surface_type(body):
+def create_surface_type(token_info, body):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     new_surface_type = SurfaceType(body['surface_type_name'])
     db.session.add(new_surface_type)
     db.session.commit()
     return surface_type_schema.dump(new_surface_type)
 
 
-def update_surface_type(surface_type_id, body):
+def update_surface_type(token_info, surface_type_id, body):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     surface_type = SurfaceType.query.get(surface_type_id)
     if surface_type:
         surface_type.surface_type_name = body['surface_type_name']
@@ -33,7 +40,10 @@ def update_surface_type(surface_type_id, body):
     return None
 
 
-def delete_surface_type(surface_type_id):
+def delete_surface_type(token_info, surface_type_id):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     surface_type = SurfaceType.query.get(surface_type_id)
     if surface_type:
         db.session.delete(surface_type)

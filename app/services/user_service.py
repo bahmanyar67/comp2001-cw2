@@ -1,5 +1,6 @@
 from app.models import User, UserSchema
 from app.extensions import db
+from flask import abort
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -17,7 +18,10 @@ def get_user_by_id(user_id):
     return None
 
 
-def create_user(body):
+def create_user(token_info, body):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     new_user = User(body['user_email'], body['user_role'])
     db.session.add(new_user)
     db.session.commit()
@@ -25,6 +29,10 @@ def create_user(body):
 
 
 def update_user(user_id, body):
+def update_user(token_info, user_id, body):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     user = User.query.get(user_id)
     if user:
         user.user_email = body['user_email']
@@ -35,6 +43,10 @@ def update_user(user_id, body):
 
 
 def delete_user(user_id):
+def delete_user(token_info, user_id):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     user = User.query.get(user_id)
     if user:
         db.session.delete(user)

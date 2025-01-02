@@ -1,5 +1,6 @@
 from app.models import Trail, TrailSchema, Tag
 from app.extensions import db
+from flask import abort
 
 trail_schema = TrailSchema()
 trails_schema = TrailSchema(many=True)
@@ -17,7 +18,10 @@ def get_trail_by_id(trail_id):
     return None
 
 
-def create_trail(body):
+def create_trail(token_info, body):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     new_trail = Trail(
         trail_name=body.get('trail_name'),
         trail_summary=body.get('trail_summary'),
@@ -46,7 +50,10 @@ def create_trail(body):
     return trail_schema.dump(new_trail)
 
 
-def update_trail(trail_id, body):
+def update_trail(token_info, trail_id, body):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     trail = Trail.query.get(trail_id)
     if trail:
         trail.trail_name = body.get('trail_name', trail.trail_name)
@@ -75,7 +82,10 @@ def update_trail(trail_id, body):
     return None
 
 
-def delete_trail(trail_id):
+def delete_trail(token_info, trail_id):
+    if token_info['role'] != 'admin':
+        abort(401, 'Unauthorized')
+
     trail = Trail.query.get(trail_id)
     if trail:
         db.session.delete(trail)

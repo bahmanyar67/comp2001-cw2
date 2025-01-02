@@ -13,11 +13,10 @@ paths:
       summary: default route
       tags:
         - app
-      operationId: app.routes.health
+      operationId: app.services.health
       responses:
         200:
           description: Welcome to the Trail REST API
-
   /counties:
     get:
       summary: Get all counties
@@ -56,6 +55,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/County"
+      security:
+        - basic: [ ]
   /counties/{county_id}:
     get:
       summary: Get a county by ID
@@ -102,6 +103,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/County"
+      security:
+        - basic: [ ]
     delete:
       summary: Delete a county
       tags:
@@ -118,7 +121,8 @@ paths:
           description: County deleted
         404:
           description: County not found
-
+      security:
+        - basic: [ ]
 
   /locations:
     get:
@@ -158,6 +162,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Location"
+      security:
+        - basic: [ ]
+
   /locations/{location_id}:
     get:
       summary: Get a location by ID
@@ -204,6 +211,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Location"
+      security:
+        - basic: [ ]
     delete:
       summary: Delete a location
       tags:
@@ -220,6 +229,8 @@ paths:
           description: Location deleted
         404:
           description: Location not found
+      security:
+        - basic: [ ]
 
   /surface_types:
     get:
@@ -259,6 +270,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SurfaceType"
+      security:
+        - basic: [ ]
 
   /surface_types/{surface_type_id}:
     get:
@@ -306,6 +319,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SurfaceType"
+      security:
+        - basic: [ ]
     delete:
       summary: Delete a surface type
       tags:
@@ -322,6 +337,8 @@ paths:
           description: Surface type deleted
         404:
           description: Surface type not found
+      security:
+        - basic: [ ]
 
   /route_types:
     get:
@@ -361,6 +378,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RouteType"
+      security:
+        - basic: [ ]
 
   /route_types/{route_type_id}:
     get:
@@ -408,6 +427,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RouteType"
+      security:
+        - basic: [ ]
     delete:
       summary: Delete a route type
       tags:
@@ -424,6 +445,8 @@ paths:
           description: Route type deleted
         404:
           description: Route type not found
+      security:
+        - basic: [ ]
 
   /tags:
     get:
@@ -463,6 +486,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tag"
+      security:
+        - basic: [ ]
   /tags/{tag_id}:
     get:
       summary: Get a tag by ID
@@ -509,6 +534,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tag"
+      security:
+        - basic: [ ]
     delete:
       summary: Delete a tag
       tags:
@@ -525,6 +552,8 @@ paths:
           description: Tag deleted
         404:
           description: Tag not found
+      security:
+        - basic: [ ]
 
   /users:
     get:
@@ -721,6 +750,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Trail"
+      security:
+        - basic: [ ]
   /trails/{trail_id}:
     get:
       summary: Get a trail by ID
@@ -813,6 +844,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Trail"
+      security:
+        - basic: [ ]
     delete:
       summary: Delete a trail
       tags:
@@ -827,9 +860,16 @@ paths:
       responses:
         204:
           description: Trail deleted
+      security:
+        - basic: [ ]
 
 
 components:
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+      x-basicInfoFunc: app.services.basic_auth_wrapper
   schemas:
     County:
       type: object
