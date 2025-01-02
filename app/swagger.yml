@@ -660,6 +660,7 @@ paths:
                 - trail_starting_point_long
                 - trail_ending_point_lat
                 - trail_ending_point_long
+                - coordinates
               properties:
                 trail_name:
                   type: string
@@ -703,6 +704,15 @@ paths:
                   type: array
                   items:
                     type: integer
+                coordinates:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      latitude:
+                        type: number
+                      longitude:
+                        type: number
       responses:
         201:
           description: Trail created
@@ -758,6 +768,7 @@ paths:
                 - trail_starting_point_long
                 - trail_ending_point_lat
                 - trail_ending_point_long
+                - coordinates
               properties:
                 trail_name:
                   type: string
@@ -797,6 +808,19 @@ paths:
                   type: number
                 trail_difficulty:
                   type: string
+                tag_ids:
+                    type: array
+                    items:
+                        type: integer
+                coordinates:
+                    type: array
+                    items:
+                        type: object
+                    properties:
+                        latitude:
+                            type: number
+                        longitude:
+                            type: number
       responses:
         200:
           description: Trail updated
@@ -890,6 +914,7 @@ components:
           type: string
         user_role:
           type: string
+          enum: [admin, user]
       required:
         - user_email
         - user_role
@@ -941,6 +966,15 @@ components:
           type: array
           items:
             type: integer
+        coordinates:
+            type: array
+            items:
+              type: object
+              properties:
+                latitude:
+                    type: number
+                longitude:
+                    type: number
       required:
         - trail_name
         - trail_summary
@@ -953,3 +987,4 @@ components:
         - trail_starting_point_long
         - trail_ending_point_lat
         - trail_ending_point_long
+        - coordinates

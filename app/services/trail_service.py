@@ -1,4 +1,4 @@
-from app.models import Trail, TrailSchema, Tag
+from app.models import Trail, TrailSchema, Tag, Coordinate
 from app.extensions import db
 from flask import abort
 
@@ -47,6 +47,18 @@ def create_trail(token_info, body):
 
     db.session.add(new_trail)
     db.session.commit()
+
+    coordinates = body.get('coordinates', [])
+    for coord in coordinates:
+        new_coordinate = Coordinate(
+            trail_id=new_trail.trail_id,
+            latitude=coord['latitude'],
+            longitude=coord['longitude']
+        )
+        db.session.add(new_coordinate)
+
+    db.session.add(new_trail)
+    db.session.commit()
     return trail_schema.dump(new_trail)
 
 
@@ -76,6 +88,17 @@ def update_trail(token_info, trail_id, body):
         trail.trail_ending_point_long = body.get('trail_ending_point_long', trail.trail_ending_point_long)
         trail.trail_difficulty = body.get('trail_difficulty', trail.trail_difficulty)
         trail.tags = Tag.query.filter(Tag.tag_id.in_(body.get('tag_ids', []))).all()
+
+        # Update coordinates
+        db.session.query(Coordinate).filter(Coordinate.trail_id == trail_id).delete()
+        coordinates = body.get('coordinates', [])
+        for coord in coordinates:
+            new_coordinate = Coordinate(
+                trail_id=trail.trail_id,
+                latitude=coord['latitude'],
+                longitude=coord['longitude']
+            )
+            db.session.add(new_coordinate)
 
         db.session.commit()
         return trail_schema.dump(trail)

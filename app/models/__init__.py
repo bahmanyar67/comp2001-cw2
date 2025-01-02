@@ -5,3 +5,4 @@ from app.models.route_type import RouteType, RouteTypeSchema
 from app.models.user import User, UserSchema
 from app.models.tag import Tag, TagSchema
 from app.models.trail import Trail, TrailSchema
+from app.models.coordinate import Coordinate, CoordinateSchema

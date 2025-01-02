@@ -137,11 +137,16 @@ def create_tables():
             trail_difficulty NVARCHAR(50),
             trail_created_at DATETIME DEFAULT GETDATE(),
             trail_updated_at DATETIME DEFAULT GETDATE(),
-            FOREIGN KEY (trail_owner_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users](user_id),
-            FOREIGN KEY (trail_route_type_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[route_types](route_type_id),
-            FOREIGN KEY (trail_surface_type_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[surface_types](surface_type_id),
-            FOREIGN KEY (trail_location_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[locations](location_id),
+            FOREIGN KEY (trail_owner_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users](user_id) 
+                ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (trail_route_type_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[route_types](route_type_id)
+                ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (trail_surface_type_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[surface_types](surface_type_id)
+                ON DELETE CASCADE ON UPDATE CASCADE,
+            FOREIGN KEY (trail_location_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[locations](location_id)
+                ON DELETE CASCADE ON UPDATE CASCADE,
             FOREIGN KEY (trail_county_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[counties](county_id)
+                ON DELETE CASCADE ON UPDATE CASCADE
         );
     END
     """)
@@ -153,8 +158,41 @@ def create_tables():
             trail_id INT NOT NULL,
             tag_id INT NOT NULL,
             PRIMARY KEY (trail_id, tag_id),
-            FOREIGN KEY (trail_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails](trail_id),
+            FOREIGN KEY (trail_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails](trail_id)
+                ON DELETE CASCADE ON UPDATE CASCADE,
             FOREIGN KEY (tag_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[tags](tag_id)
+                ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    END
+    """)
+
+    coordinates_table_sql = ("""
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'coordinates' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    BEGIN
+        CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[coordinates] (
+            coordinate_id INT PRIMARY KEY IDENTITY(1,1),
+            trail_id INT NOT NULL,
+            latitude DECIMAL(9,6) NOT NULL,
+            longitude DECIMAL(9,6) NOT NULL,
+            FOREIGN KEY (trail_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails](trail_id)
+                ON DELETE CASCADE ON UPDATE CASCADE
+        );
+    END
+    """)
+
+    logs_table_sql = ("""
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'logs' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    BEGIN
+        CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[logs] (
+            log_id INT PRIMARY KEY IDENTITY(1,1),
+            trail_id INT NULL,
+            user_id INT NOT NULL,
+            action NVARCHAR(200) NOT NULL,
+            created_at DATETIME DEFAULT GETDATE(),
+            FOREIGN KEY (trail_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails](trail_id)
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users](user_id)
         );
     END
     """)
@@ -167,6 +205,8 @@ def create_tables():
     execute_query(user_table_sql)
     execute_query(trail_table_sql)
     execute_query(trail_tag_table_sql)
+    execute_query(coordinates_table_sql)
+    execute_query(logs_table_sql)
 
     print("Tables created successfully")
 
@@ -265,6 +305,8 @@ def create_default_data():
             END
             """)
         execute_query(tag_insert_sql)
+
+    print("Default data created successfully")
 
 
 # Initialize the database
