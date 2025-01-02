@@ -570,32 +570,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
-    post:
-      summary: Create a new user
-      tags:
-        - Users
-      operationId: app.services.create_user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - user_email
-                - user_role
-              properties:
-                user_email:
-                  type: string
-                user_role:
-                  type: string
-      responses:
-        201:
-          description: User created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
   /users/{user_id}:
     get:
       summary: Get a user by ID
@@ -645,22 +619,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-    delete:
-      summary: Delete a user
-      tags:
-        - Users
-      operationId: app.services.delete_user
-      parameters:
-        - name: user_id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        204:
-          description: User deleted
-        404:
-          description: User not found
+      security:
+        - basic: [ ]
 
   /trails:
     get:

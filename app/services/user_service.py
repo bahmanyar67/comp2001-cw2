@@ -28,21 +28,19 @@ def create_user(token_info, body):
     return user_schema.dump(new_user)
 
 
-def update_user(user_id, body):
 def update_user(token_info, user_id, body):
     if token_info['role'] != 'admin':
         abort(401, 'Unauthorized')
 
     user = User.query.get(user_id)
     if user:
-        user.user_email = body['user_email']
+        # user.user_email = body['user_email']
         user.user_role = body['user_role']
         db.session.commit()
         return user_schema.dump(user)
     return None
 
 
-def delete_user(user_id):
 def delete_user(token_info, user_id):
     if token_info['role'] != 'admin':
         abort(401, 'Unauthorized')
