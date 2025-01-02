@@ -103,6 +103,7 @@ def create_tables():
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users] (
             user_id INT PRIMARY KEY IDENTITY(1,1),
+            user_name NVARCHAR(100) NOT NULL,
             user_email NVARCHAR(255) NOT NULL UNIQUE,
             user_role NVARCHAR(50) NOT NULL
         );
