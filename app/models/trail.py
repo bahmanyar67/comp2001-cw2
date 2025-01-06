@@ -1,14 +1,18 @@
 from app.extensions import db, ma
+from marshmallow import post_dump
 from sqlalchemy import event
 import datetime
 import os
 
-
 trail_tag = db.Table('trail_tag', db.Model.metadata,
-                     db.Column('trail_id', db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.trails.trail_id"), primary_key=True),
-                     db.Column('tag_id', db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.tags.tag_id"), primary_key=True),
-                     schema=os.getenv("DATABASE_SCHEMA_NAME")
+                     db.Column('trail_id', db.Integer,
+                               db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.trails.trail_id"), primary_key=True),
+                     db.Column('tag_id', db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.tags.tag_id"),
+                               primary_key=True),
+                     schema=os.getenv("DATABASE_SCHEMA_NAME"),
+                     extend_existing=True
                      )
+
 
 class Trail(db.Model):
     __tablename__ = 'trails'
@@ -21,10 +25,16 @@ class Trail(db.Model):
     trail_name = db.Column(db.String(100), nullable=False)
     trail_summary = db.Column(db.String(None), nullable=False)
     trail_description = db.Column(db.String(None))
-    trail_owner_id = db.Column(db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.users.user_id"), nullable=False)
-    trail_route_type_id = db.Column(db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.route_types.route_type_id"), nullable=False)
-    trail_surface_type_id = db.Column(db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.surface_types.surface_type_id"), nullable=False)
-    trail_location_id = db.Column(db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.locations.location_id"), nullable=False)
+    trail_owner_id = db.Column(db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.users.user_id"),
+                               nullable=False)
+    trail_route_type_id = db.Column(db.Integer,
+                                    db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.route_types.route_type_id"),
+                                    nullable=False)
+    trail_surface_type_id = db.Column(db.Integer, db.ForeignKey(
+        f"{os.getenv('DATABASE_SCHEMA_NAME')}.surface_types.surface_type_id"), nullable=False)
+    trail_location_id = db.Column(db.Integer,
+                                  db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.locations.location_id"),
+                                  nullable=False)
     trail_street = db.Column(db.String(255))
     trail_postal_code = db.Column(db.String(20))
     trail_county_id = db.Column(db.Integer, db.ForeignKey(f"{os.getenv('DATABASE_SCHEMA_NAME')}.counties.county_id"))
@@ -48,6 +58,7 @@ class Trail(db.Model):
     location = db.relationship('Location', backref='trails', single_parent=True)
     county = db.relationship('County', backref='trails', single_parent=True)
     tags = db.relationship('Tag', secondary=trail_tag, backref='trails')
+    coordinates = db.relationship('Coordinate', backref='trails', single_parent=True, lazy='dynamic')
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -67,9 +78,19 @@ class TrailSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
         include_fk = True
 
-    owner = ma.Nested('UserSchema', only=('user_id', 'user_email', 'user_role'))
-    route_type = ma.Nested('RouteTypeSchema', only=('route_type_id', 'route_type_name'))
-    surface_type = ma.Nested('SurfaceTypeSchema', only=('surface_type_id', 'surface_type_name'))
-    location = ma.Nested('LocationSchema', only=('location_id', 'location_name'))
-    county = ma.Nested('CountySchema', only=('county_id', 'county_name'))
-    tags = ma.Nested('TagSchema', many=True, only=('tag_id', 'tag_name'))
+    owner = ma.Nested('UserSchema', only=('user_name', 'user_email'))
+    route_type = ma.Nested('RouteTypeSchema', only=('route_type_name',))
+    surface_type = ma.Nested('SurfaceTypeSchema', only=('surface_type_name',))
+    location = ma.Nested('LocationSchema', only=('location_name',))
+    county = ma.Nested('CountySchema', only=('county_name',))
+    tags = ma.Nested('TagSchema', many=True, only=('tag_name',))
+    coordinates = ma.Nested('CoordinateSchema', many=True, only=('latitude', 'longitude'))
+
+    @post_dump
+    def filter_fields(self, obj, many, **kwargs):
+        user_type = self.context.get('user_role')
+        if user_type == 'user':
+            # Remove owner and trail_id for user role
+            obj.pop('owner', None)
+            obj.pop('trail_id', None)
+        return obj

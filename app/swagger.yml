@@ -32,6 +32,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/County"
+      security:
+        - basic: [ ]
     post:
       summary: Create a new county
       tags:
@@ -74,6 +76,8 @@ paths:
           description: County details
         404:
           description: County not found
+      security:
+        - basic: [ ]
     put:
       summary: Update a county
       tags:
@@ -139,6 +143,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Location"
+      security:
+        - basic: [ ]
     post:
       summary: Create a new location
       tags:
@@ -182,6 +188,8 @@ paths:
           description: Location details
         404:
           description: Location not found
+      security:
+        - basic: [ ]
     put:
       summary: Update a location
       tags:
@@ -247,6 +255,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SurfaceType"
+      security:
+        - basic: [ ]
     post:
       summary: Create a new surface type
       tags:
@@ -290,6 +300,8 @@ paths:
           description: Surface type details
         404:
           description: Surface type not found
+      security:
+        - basic: [ ]
     put:
       summary: Update a surface type
       tags:
@@ -355,6 +367,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RouteType"
+      security:
+        - basic: [ ]
     post:
       summary: Create a new route type
       tags:
@@ -398,6 +412,8 @@ paths:
           description: Route type details
         404:
           description: Route type not found
+      security:
+        - basic: [ ]
     put:
       summary: Update a route type
       tags:
@@ -463,6 +479,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Tag"
+      security:
+        - basic: [ ]
     post:
       summary: Create a new tag
       tags:
@@ -505,6 +523,8 @@ paths:
           description: Tag details
         404:
           description: Tag not found
+      security:
+        - basic: [ ]
     put:
       summary: Update a tag
       tags:
@@ -570,6 +590,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
+      security:
+        - basic: [ ]
   /users/{user_id}:
     get:
       summary: Get a user by ID
@@ -587,6 +609,8 @@ paths:
           description: User details
         404:
           description: User not found
+      security:
+        - basic: [ ]
     put:
       summary: Update a user
       tags:
@@ -637,6 +661,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Trail"
+      security:
+        - basic: [ ]
     post:
       summary: Create a new trail
       tags:
@@ -739,6 +765,8 @@ paths:
           description: Trail details
         404:
           description: Trail not found
+      security:
+        - basic: [ ]
     put:
       summary: Update a trail
       tags:

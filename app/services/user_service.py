@@ -20,7 +20,7 @@ def get_user_by_id(user_id):
 
 def create_user(token_info, body):
     if token_info['role'] != 'admin':
-        abort(401, 'Unauthorized')
+        abort(401, 'Only admin can create users')
 
     new_user = User(body['user_email'], body['user_role'])
     db.session.add(new_user)
@@ -30,7 +30,7 @@ def create_user(token_info, body):
 
 def update_user(token_info, user_id, body):
     if token_info['role'] != 'admin':
-        abort(401, 'Unauthorized')
+        abort(401, 'Only admin can update users')
 
     user = User.query.get(user_id)
     if user:
@@ -43,7 +43,7 @@ def update_user(token_info, user_id, body):
 
 def delete_user(token_info, user_id):
     if token_info['role'] != 'admin':
-        abort(401, 'Unauthorized')
+        abort(401, 'Only admin can delete users')
 
     user = User.query.get(user_id)
     if user:

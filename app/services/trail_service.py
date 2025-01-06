@@ -1,19 +1,19 @@
 from app.models import Trail, TrailSchema, Tag, Coordinate
 from app.extensions import db
 from flask import abort
-
-trail_schema = TrailSchema()
-trails_schema = TrailSchema(many=True)
+from connexion.context import context, operation, receive, request, scope
 
 
-def get_all_trails():
+def get_all_trails(token_info):
     trails = Trail.query.all()
+    trails_schema = TrailSchema(many=True, context={'user_role': token_info['role']})
     return trails_schema.dump(trails)
 
 
-def get_trail_by_id(trail_id):
+def get_trail_by_id(token_info, trail_id):
     trail = Trail.query.get(trail_id)
     if trail:
+        trail_schema = TrailSchema(context={'user_role': token_info['role'] if token_info else 'user'})
         return trail_schema.dump(trail)
     return None
 
@@ -59,6 +59,7 @@ def create_trail(token_info, body):
 
     db.session.add(new_trail)
     db.session.commit()
+    trail_schema = TrailSchema(context={'user_role': token_info['role'] if token_info else 'user'})
     return trail_schema.dump(new_trail)
 
 
@@ -101,6 +102,7 @@ def update_trail(token_info, trail_id, body):
             db.session.add(new_coordinate)
 
         db.session.commit()
+        trail_schema = TrailSchema(context={'user_role': token_info['role'] if token_info else 'user'})
         return trail_schema.dump(trail)
     return None
 
@@ -113,5 +115,6 @@ def delete_trail(token_info, trail_id):
     if trail:
         db.session.delete(trail)
         db.session.commit()
+        trail_schema = TrailSchema(context={'user_role': token_info['role'] if token_info else 'user'})
         return trail_schema.dump(trail)
     return None
