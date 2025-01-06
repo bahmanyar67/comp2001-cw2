@@ -59,7 +59,8 @@ def create_tables():
         """)
 
     location_table_sql = ("""
-            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'locations' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'locations' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
             BEGIN
                 CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[locations] (
                     location_id SMALLINT PRIMARY KEY IDENTITY(1,1),
@@ -69,7 +70,8 @@ def create_tables():
         """)
 
     surface_type_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'surface_types' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'surface_types' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[surface_types] (
             surface_type_id TINYINT PRIMARY KEY IDENTITY(1,1),
@@ -79,7 +81,8 @@ def create_tables():
     """)
 
     route_types_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'route_types' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'route_types' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[route_types] (
             route_type_id TINYINT PRIMARY KEY IDENTITY(1,1),
@@ -89,7 +92,8 @@ def create_tables():
     """)
 
     tag_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'tags' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'tags' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[tags] (
             tag_id INT PRIMARY KEY IDENTITY(1,1),
@@ -99,7 +103,8 @@ def create_tables():
     """)
 
     user_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'users' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'users' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[users] (
             user_id INT PRIMARY KEY IDENTITY(1,1),
@@ -152,7 +157,8 @@ def create_tables():
     """)
 
     trail_tag_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'trail_tag' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'trail_tag' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trail_tag] (
             trail_id INT NOT NULL,
@@ -167,7 +173,8 @@ def create_tables():
     """)
 
     coordinates_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'coordinates' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'coordinates' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[coordinates] (
             coordinate_id INT PRIMARY KEY IDENTITY(1,1),
@@ -181,7 +188,8 @@ def create_tables():
     """)
 
     logs_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'logs' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'logs' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[logs] (
             log_id INT PRIMARY KEY IDENTITY(1,1),
@@ -213,6 +221,71 @@ def create_tables():
 
 # 3. Create Views
 def create_views():
+    trail_details_view_sql = f"""
+            IF NOT EXISTS (SELECT * FROM sys.views WHERE name = 'trail_details' AND schema_id = SCHEMA_ID('{os.getenv("DATABASE_SCHEMA_NAME")}'))
+            BEGIN
+                EXEC('
+                    CREATE VIEW [{os.getenv("DATABASE_SCHEMA_NAME")}].[trail_details] AS
+                    SELECT
+                        t.trail_id,
+                        t.trail_name,
+                        t.trail_summary,
+                        t.trail_description,
+                        u.user_name AS trail_owner,
+                        rt.route_type_name AS trail_route_type,
+                        t.trail_surface_type_id,
+                        st.surface_type_name AS trail_surface_type,
+                        l.location_name AS trail_location,
+                        t.trail_street,
+                        t.trail_postal_code,
+                        c.county_name AS trail_county,
+                        t.trail_city,
+                        t.trail_length,
+                        t.trail_length_unit,
+                        t.trail_elevation_gain,
+                        t.trail_elevation_gain_unit,
+                        t.trail_starting_point_lat,
+                        t.trail_starting_point_long,
+                        t.trail_ending_point_lat,
+                        t.trail_ending_point_long,
+                        t.trail_difficulty,
+                        t.trail_created_at,
+                        t.trail_updated_at,
+                        STRING_AGG(tag.tag_name, '', '') AS tags,
+                        STRING_AGG(CONCAT(coord.latitude, '', '', coord.longitude), '', '') AS coordinates
+
+                    FROM
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[trails] t
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[users] u ON t.trail_owner_id = u.user_id
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[route_types] rt ON t.trail_route_type_id = rt.route_type_id
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[surface_types] st ON t.trail_surface_type_id = st.surface_type_id
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[locations] l ON t.trail_location_id = l.location_id
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[counties] c ON t.trail_county_id = c.county_id
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[trail_tag] tt ON t.trail_id = tt.trail_id
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[tags] tag ON tt.tag_id = tag.tag_id
+                    LEFT JOIN
+                        [{os.getenv("DATABASE_SCHEMA_NAME")}].[coordinates] coord ON t.trail_id = coord.trail_id
+                    GROUP BY
+                        t.trail_id, t.trail_name, t.trail_summary, t.trail_description, t.trail_owner_id, u.user_name,
+                        t.trail_route_type_id, rt.route_type_name, t.trail_surface_type_id, st.surface_type_name,
+                        t.trail_location_id, l.location_name, t.trail_street, t.trail_postal_code, t.trail_county_id,
+                        c.county_name, t.trail_city, t.trail_length, t.trail_length_unit, t.trail_elevation_gain,
+                        t.trail_elevation_gain_unit, t.trail_starting_point_lat, t.trail_starting_point_long,
+                        t.trail_ending_point_lat, t.trail_ending_point_long, t.trail_difficulty, t.trail_created_at,
+                        t.trail_updated_at
+                ')
+            END
+        """
+    execute_query(trail_details_view_sql)
+
+
     print("Creating views...")
 
 
@@ -306,17 +379,122 @@ def create_default_data():
             """)
         execute_query(tag_insert_sql)
 
+    # Trails
+    trails_data = [
+        (
+            "Dartmoor National Park",
+            "Dartmoor is a vast moorland in the county of Devon, in southwest England. Dartmoor National Park is known for its rugged terrain, medieval villages and granite tors (rock outcrops). The park also shelters prehistoric ruins including the stone rows and circles of Grey Wethers and Beardown Tors. Ponies roam its craggy landscape, defined by forests, rivers, wetlands and tors.",
+            1, 1, 1, 1, "Dartmoor National Park, Devon", "PL20 6SG", 1, "Princetown", 954.00, "km", 621.00, "m", 50.571,
+            -3.992, 50.571, -3.992, "Moderate",
+            [3, 5, 2], [(50.571, -3.992), (50.571, -3.992), (50.571, -3.992)]
+        ),
+        (
+            "Exmoor National Park",
+            "Exmoor National Park is a national park situated in the counties of Devon and Somerset, in South West England. The park covers 267 square miles (690 km2) of hilly open moorland, and includes the Brendon Hills, the East Lyn Valley, the Vale of Porlock and 55 km (34 mi) of the Bristol Channel coast.",
+            2, 2, 2, 2, "Exmoor National Park, Devon", "TA24 7SH", 2, "Dulverton", 692.00, "km", 623.00, "m", 51.165,
+            -3.825, 51.165, -3.825, "Moderate",
+            [1, 4, 5], [(51.165, -3.825), (51.165, -3.825), (51.165, -3.825)]
+        ),
+        (
+            "Lake District National Park",
+            "The Lake District, also known as the Lakes or Lakeland, is a mountainous region in North West England. A popular holiday destination, it is famous for its lakes, forests and mountains (or fells), and its associations with William Wordsworth and other Lake Poets and also with Beatrix Potter and John Ruskin.",
+            3, 3, 3, 3, "Lake District National Park, Cumbria", "CA12 5XN", 3, "Keswick", 978.00, "km", 912.00, "m",
+            54.460, -3.088, 54.460, -3.088, "Moderate",
+            [1, 2], [(54.460, -3.088), (54.460, -3.088), (54.460, -3.088)]
+        )
+    ]
+
+    for trail in trails_data:
+        trail_insert_sql = f"""
+                IF NOT EXISTS (SELECT * FROM [{os.getenv("DATABASE_SCHEMA_NAME")}].[trails] WHERE trail_name = '{trail[0]}')
+                BEGIN
+                    INSERT INTO [{os.getenv("DATABASE_SCHEMA_NAME")}].[trails] (
+                        trail_name, trail_summary, trail_owner_id, trail_route_type_id, trail_surface_type_id, trail_location_id,
+                        trail_street, trail_postal_code, trail_county_id, trail_city, trail_length, trail_length_unit,
+                        trail_elevation_gain, trail_elevation_gain_unit, trail_starting_point_lat, trail_starting_point_long,
+                        trail_ending_point_lat, trail_ending_point_long, trail_difficulty
+                    )
+                    VALUES (
+                        '{trail[0]}', '{trail[1]}', {trail[2]}, {trail[3]}, {trail[4]}, {trail[5]},
+                        '{trail[6]}', '{trail[7]}', {trail[8]}, '{trail[9]}', {trail[10]}, '{trail[11]}',
+                        {trail[12]}, '{trail[13]}', {trail[14]}, {trail[15]}, {trail[16]}, {trail[17]}, '{trail[18]}'
+                    )
+                END
+            """
+        execute_query(trail_insert_sql)
+
+        # Retrieve the trail_id of the newly inserted trail
+        cursor.execute(
+            f"SELECT trail_id FROM [{os.getenv('DATABASE_SCHEMA_NAME')}].[trails] WHERE trail_name = '{trail[0]}'")
+        trail_id = cursor.fetchone()[0]
+
+        # Insert tags
+        for tag in trail[19]:
+            tag_insert_sql = f"""
+                   INSERT INTO [{os.getenv('DATABASE_SCHEMA_NAME')}].[trail_tag] (trail_id, tag_id)
+                   VALUES ({trail_id}, {tag})
+               """
+            execute_query(tag_insert_sql)
+
+        # Insert coordinates
+        for coordinate in trail[20]:
+            coordinate_insert_sql = f"""
+                   INSERT INTO [{os.getenv('DATABASE_SCHEMA_NAME')}].[coordinates] (trail_id, latitude, longitude)
+                   VALUES ({trail_id}, {coordinate[0]}, {coordinate[1]})
+               """
+            execute_query(coordinate_insert_sql)
+
+
     print("Default data created successfully")
 
 
-# Initialize the database
+# 6. Drop Tables
+def drop_tables():
+    print("Dropping tables...")
+    tables = [
+        "coordinates",
+        "logs",
+        "trail_tag",
+        "trails",
+        "users",
+        "tags",
+        "route_types",
+        "surface_types",
+        "locations",
+        "counties"
+    ]
+
+    for table in tables:
+        drop_table_sql = ("""
+            IF EXISTS (SELECT * FROM sys.tables WHERE name = '""" + table + """' AND schema_id = SCHEMA_ID('""" + os.getenv(
+            "DATABASE_SCHEMA_NAME") + """'))
+            BEGIN
+                DROP TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[""" + table + """]
+            END
+            """)
+        execute_query(drop_table_sql)
+
+    print("Tables dropped successfully")
+
+
+# refresh database
+def refresh_database():
+    print("Refreshing the database...")
+    drop_tables()
+    # drop_views()
+    # drop_stored_procedures()
+    # drop_default_data()
+    print("Database refresh complete.")
+
+
 def initialize_database():
+    # refresh_database()
     print("Initializing the database...")
-    create_schema(os.getenv("DATABASE_SCHEMA_NAME"))
-    create_tables()
+    # create_schema(os.getenv("DATABASE_SCHEMA_NAME"))
+    # create_tables()
     create_views()
-    create_stored_procedures()
-    create_default_data()
+    # create_stored_procedures()
+    # create_default_data()
     print("Database initialization complete.")
 
 
