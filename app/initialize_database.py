@@ -49,7 +49,8 @@ def create_schema(name):
 # 2. Create Tables
 def create_tables():
     county_table_sql = ("""
-            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'counties' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'counties' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
             BEGIN
                 CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[counties] (
                     county_id TINYINT PRIMARY KEY IDENTITY(1,1),
@@ -116,7 +117,8 @@ def create_tables():
     """)
 
     trail_table_sql = ("""
-    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'trails' AND schema_id = SCHEMA_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """'))
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'trails' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
     BEGIN
         CREATE TABLE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails] (
             trail_id INT PRIMARY KEY IDENTITY(1,1),
@@ -285,13 +287,56 @@ def create_views():
         """
     execute_query(trail_details_view_sql)
 
-
     print("Creating views...")
 
 
-# 4. Create Stored Procedures
-def create_stored_procedures():
-    print("Creating stored procedures...")
+# 4. Create Triggers
+def create_triggers():
+    trigger_sql = ("""
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM sys.triggers 
+            WHERE name = 'after_trail_change'
+              AND parent_id = OBJECT_ID('""" + os.getenv("DATABASE_SCHEMA_NAME") + """.trails')
+        )
+        BEGIN
+            EXEC ('CREATE TRIGGER after_trail_change
+                ON [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails]
+                AFTER INSERT, UPDATE, DELETE
+                AS
+                BEGIN
+                    -- Handle INSERT actions
+                    INSERT INTO CW2.logs (trail_id, user_id, action, created_at)
+                    SELECT 
+                        trail_id, 
+                        trail_owner_id, 
+                        ''INSERT'' AS action, 
+                        CURRENT_TIMESTAMP
+                    FROM INSERTED;
+
+                    -- Handle UPDATE actions
+                    INSERT INTO CW2.logs (trail_id, user_id, action, created_at)
+                    SELECT 
+                        trail_id, 
+                        trail_owner_id, 
+                        ''UPDATE'' AS action, 
+                        CURRENT_TIMESTAMP
+                    FROM INSERTED;
+
+                    -- Handle DELETE actions
+                    INSERT INTO CW2.logs (trail_id, user_id, action, created_at)
+                    SELECT 
+                        trail_id, 
+                        trail_owner_id, 
+                        ''DELETE'' AS action, 
+                        CURRENT_TIMESTAMP
+                    FROM DELETED;
+                END')
+        END
+        """)
+
+    execute_query(trigger_sql)
+    print("Trigger created successfully")
 
 
 # 5. Create default Data
@@ -444,7 +489,6 @@ def create_default_data():
                """
             execute_query(coordinate_insert_sql)
 
-
     print("Default data created successfully")
 
 
@@ -490,11 +534,11 @@ def refresh_database():
 def initialize_database():
     # refresh_database()
     print("Initializing the database...")
-    # create_schema(os.getenv("DATABASE_SCHEMA_NAME"))
-    # create_tables()
+    create_schema(os.getenv("DATABASE_SCHEMA_NAME"))
+    create_tables()
     create_views()
-    # create_stored_procedures()
-    # create_default_data()
+    create_triggers()
+    create_default_data()
     print("Database initialization complete.")
 
 
