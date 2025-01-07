@@ -25,7 +25,6 @@ HOMEBREW_ACCEPT_EULA=Y brew install msodbcsql18 mssql-tools18
 4. Create a `.env` file in the root directory and add the following environment variables:
 
 ```dotenv
-SECRET_KEY=
 DATABASE_SERVER=
 DATABASE_NAME=
 DATABASE_USER=
@@ -51,7 +50,6 @@ docker pull bahmanyar67/trail-rest-api
 2. Create a `.env` file in the root directory and add the following environment variables:
 
 ```dotenv
-SECRET_KEY=
 DATABASE_SERVER=
 DATABASE_NAME=
 DATABASE_USER=
@@ -63,7 +61,7 @@ DATABASE_SCHEMA_NAME=
 3. Run the container:
 
 ```bash
-docker run -p 5000:5000 --env-file .env bahmanyar67/trail-rest-api
+docker run -p 8000:8000 --env-file .env bahmanyar67/trail-rest-api
 ```
 
 ## Usage
