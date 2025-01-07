@@ -13,7 +13,7 @@ connection_string = (
     f"Uid={os.getenv('DATABASE_USER')};"
     f"Pwd={os.getenv('DATABASE_PASSWORD')};"
     "Encrypt=yes;"
-    "TrustServerCertificate=no;"
+    "TrustServerCertificate=yes;"
     "Connection Timeout=30;"
 )
 
@@ -290,7 +290,156 @@ def create_views():
     print("Creating views...")
 
 
-# 4. Create Triggers
+# 4. Create Stored Procedures
+def create_stored_procedures():
+    create_trail_sp_sql = ("""
+        IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = 'create_trail' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
+        BEGIN
+            EXEC('
+                CREATE PROCEDURE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[create_trail]
+                    @trail_name NVARCHAR(100),
+                    @trail_summary NVARCHAR(MAX),
+                    @trail_description NVARCHAR(MAX),
+                    @trail_owner_id INT,
+                    @trail_route_type_id TINYINT,
+                    @trail_surface_type_id TINYINT,
+                    @trail_location_id SMALLINT,
+                    @trail_street NVARCHAR(255),
+                    @trail_postal_code NVARCHAR(20),
+                    @trail_county_id TINYINT,
+                    @trail_city NVARCHAR(100),
+                    @trail_length DECIMAL(5,2),
+                    @trail_length_unit NVARCHAR(20),
+                    @trail_elevation_gain DECIMAL(5,2),
+                    @trail_elevation_gain_unit NVARCHAR(20),
+                    @trail_starting_point_lat DECIMAL(9,6),
+                    @trail_starting_point_long DECIMAL(9,6),
+                    @trail_ending_point_lat DECIMAL(9,6),
+                    @trail_ending_point_long DECIMAL(9,6),
+                    @trail_difficulty NVARCHAR(50)
+                AS
+                BEGIN
+                    INSERT INTO [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails] (
+                        trail_name, trail_summary, trail_description, trail_owner_id, trail_route_type_id,
+                        trail_surface_type_id, trail_location_id, trail_street, trail_postal_code, trail_county_id,
+                        trail_city, trail_length, trail_length_unit, trail_elevation_gain, trail_elevation_gain_unit,
+                        trail_starting_point_lat, trail_starting_point_long, trail_ending_point_lat, trail_ending_point_long,
+                        trail_difficulty
+                    )
+                    VALUES (
+                        @trail_name, @trail_summary, @trail_description, @trail_owner_id, @trail_route_type_id,
+                        @trail_surface_type_id, @trail_location_id, @trail_street, @trail_postal_code, @trail_county_id,
+                        @trail_city, @trail_length, @trail_length_unit, @trail_elevation_gain, @trail_elevation_gain_unit,
+                        @trail_starting_point_lat, @trail_starting_point_long, @trail_ending_point_lat, @trail_ending_point_long,
+                        @trail_difficulty
+                    )
+                END
+            ')
+        END
+        """)
+    execute_query(create_trail_sp_sql)
+
+    update_trail_sp_sql = ("""
+        IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = 'update_trail' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
+        BEGIN
+            EXEC('
+                CREATE PROCEDURE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[update_trail]
+                    @trail_id INT,
+                    @trail_name NVARCHAR(100),
+                    @trail_summary NVARCHAR(MAX),
+                    @trail_description NVARCHAR(MAX),
+                    @trail_owner_id INT,
+                    @trail_route_type_id TINYINT,
+                    @trail_surface_type_id TINYINT,
+                    @trail_location_id SMALLINT,
+                    @trail_street NVARCHAR(255),
+                    @trail_postal_code NVARCHAR(20),
+                    @trail_county_id TINYINT,
+                    @trail_city NVARCHAR(100),
+                    @trail_length DECIMAL(5,2),
+                    @trail_length_unit NVARCHAR(20),
+                    @trail_elevation_gain DECIMAL(5,2),
+                    @trail_elevation_gain_unit NVARCHAR(20),
+                    @trail_starting_point_lat DECIMAL(9,6),
+                    @trail_starting_point_long DECIMAL(9,6),
+                    @trail_ending_point_lat DECIMAL(9,6),
+                    @trail_ending_point_long DECIMAL(9,6),
+                    @trail_difficulty NVARCHAR(50)
+                AS
+                BEGIN
+                    UPDATE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails]
+                    SET
+                        trail_name = @trail_name,
+                        trail_summary = @trail_summary,
+                        trail_description = @trail_description,
+                        trail_owner_id = @trail_owner_id,
+                        trail_route_type_id = @trail_route_type_id,
+                        trail_surface_type_id = @trail_surface_type_id,
+                        trail_location_id = @trail_location_id,
+                        trail_street = @trail_street,
+                        trail_postal_code = @trail_postal_code,
+                        trail_county_id = @trail_county_id,
+                        trail_city = @trail_city,
+                        trail_length = @trail_length,
+                        trail_length_unit = @trail_length_unit,
+                        trail_elevation_gain = @trail_elevation_gain,
+                        trail_elevation_gain_unit = @trail_elevation_gain_unit,
+                        trail_starting_point_lat = @trail_starting_point_lat,
+                        trail_starting_point_long = @trail_starting_point_long,
+                        trail_ending_point_lat = @trail_ending_point_lat,
+                        trail_ending_point_long = @trail_ending_point_long,
+                        trail_difficulty = @trail_difficulty
+                    WHERE trail_id = @trail_id
+                END
+            ')
+        END
+        """)
+    execute_query(update_trail_sp_sql)
+
+    delete_trail_sp_sql = ("""
+        IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = 'delete_trail' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
+        BEGIN
+            EXEC('
+                CREATE PROCEDURE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[delete_trail]
+                    @trail_id INT
+                AS
+                BEGIN
+                    DELETE FROM [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails]
+                    WHERE trail_id = @trail_id
+                END
+            ')
+        END
+        """)
+    execute_query(delete_trail_sp_sql)
+
+    get_trail_by_id_sp_sql = ("""
+        IF NOT EXISTS (SELECT * FROM sys.procedures WHERE name = 'get_trail_by_id' AND schema_id = SCHEMA_ID('""" + os.getenv(
+        "DATABASE_SCHEMA_NAME") + """'))
+        BEGIN
+            EXEC('
+                CREATE PROCEDURE [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[get_trail_by_id]
+                    @trail_id INT
+                AS
+                BEGIN
+                    SELECT * FROM [""" + os.getenv("DATABASE_SCHEMA_NAME") + """].[trails]
+                    WHERE trail_id = @trail_id
+                END
+            ')
+        END
+        """)
+    execute_query(get_trail_by_id_sp_sql)
+
+
+    print("Stored procedures created successfully")
+
+
+
+
+
+# 5. Create Triggers
 def create_triggers():
     trigger_sql = ("""
         IF NOT EXISTS (
@@ -339,7 +488,7 @@ def create_triggers():
     print("Trigger created successfully")
 
 
-# 5. Create default Data
+# 6. Create default Data
 def create_default_data():
     # users
     user_data = [
@@ -492,7 +641,7 @@ def create_default_data():
     print("Default data created successfully")
 
 
-# 6. Drop Tables
+# 7. Drop Tables
 def drop_tables():
     print("Dropping tables...")
     tables = [
@@ -537,6 +686,7 @@ def initialize_database():
     create_schema(os.getenv("DATABASE_SCHEMA_NAME"))
     create_tables()
     create_views()
+    create_stored_procedures()
     create_triggers()
     create_default_data()
     print("Database initialization complete.")
