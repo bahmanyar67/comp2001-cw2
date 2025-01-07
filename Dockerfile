@@ -1,20 +1,24 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 # Set environment variables to avoid buffering
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-
+ENV ACCEPT_EULA=Y
 # Set the working directory
 WORKDIR /app
 
+# install system dependencies
+RUN apt-get update -y && apt-get update \
+  && apt-get install -y --no-install-recommends curl gcc g++ gnupg unixodbc-dev libgssapi-krb5-2
+
 # Install system dependencies, including Microsoft ODBC 18 driver
-RUN apt-get update && apt-get install -y \
-    curl gnupg apt-transport-https && \
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc |  gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
+    curl https://packages.microsoft.com/config/debian/12/prod.list | tee /etc/apt/sources.list.d/mssql-release.list && \
     apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev && \
+    apt-get install -y --no-install-recommends --allow-unauthenticated msodbcsql18 mssql-tools18 && \
+    echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile && \
+    echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file first (to leverage Docker cache)
